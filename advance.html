@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"], input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"], button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover, button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button.delete {
+            background-color: #f44336;
+        }
+        button.edit {
+            background-color: #008CBA;
+        }
+        .hidden-form {
+            display: none;
+            margin-top: 20px;
+            background-color: #e9f7fe;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Student Details Form</h2>
+        <form id="studentForm" onsubmit="return handleSubmit(event)">
+            <div class="form-group">
+                <label for="studentName">Name:</label>
+                <input type="text" id="studentName" name="studentName" required>
+            </div>
+            <div class="form-group">
+                <label for="studentEmail">Email:</label>
+                <input type="email" id="studentEmail" name="studentEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="studentAge">Age:</label>
+                <input type="number" id="studentAge" name="studentAge" required min="18">
+            </div>
+            <div class="form-group">
+                <label for="studentCourse">Course:</label>
+                <input type="text" id="studentCourse" name="studentCourse" required>
+            </div>
+            <input type="submit" value="Add Student">
+        </form>
+
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <th>Course</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Student rows will appear here -->
+            </tbody>
+        </table>
+
+        <div class="hidden-form" id="editForm">
+            <h3>Edit Student Details</h3>
+            <form onsubmit="return handleEditSubmit(event)">
+                <input type="hidden" id="editIndex">
+                <div class="form-group">
+                    <label for="editName">Name:</label>
+                    <input type="text" id="editName" name="editName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email:</label>
+                    <input type="email" id="editEmail" name="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editAge">Age:</label>
+                    <input type="number" id="editAge" name="editAge" required min="18">
+                </div>
+                <div class="form-group">
+                    <label for="editCourse">Course:</label>
+                    <input type="text" id="editCourse" name="editCourse" required>
+                </div>
+                <input type="submit" value="Save Changes">
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let students = [];
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('studentName').value;
+            const email = document.getElementById('studentEmail').value;
+            const age = document.getElementById('studentAge').value;
+            const course = document.getElementById('studentCourse').value;
+            
+            const student = { name, email, age, course };
+            students.push(student);
+            
+            document.getElementById('studentForm').reset();
+            
+            renderTable();
+        }
+
+        function renderTable() {
+            const tableBody = document.querySelector('#studentTable tbody');
+            tableBody.innerHTML = ''; 
+
+            students.forEach((student, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>${student.email}</td>
+                    <td>${student.age}</td>
+                    <td>${student.course}</td>
+                    <td>
+                        <button class="edit" onclick="editStudent(${index})">Edit</button>
+                        <button class="delete" onclick="deleteStudent(${index})">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function deleteStudent(index) {
+            students.splice(index, 1);
+            
+            renderTable();
+        }
+
+        function editStudent(index) {
+            const student = students[index];
+            document.getElementById('editName').value = student.name;
+            document.getElementById('editEmail').value = student.email;
+            document.getElementById('editAge').value = student.age;
+            document.getElementById('editCourse').value = student.course;
+            document.getElementById('editIndex').value = index;
+            
+            document.getElementById('editForm').style.display = 'block';
+        }
+
+        function handleEditSubmit(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('editIndex').value;
+            const name = document.getElementById('editName').value;
+            const email = document.getElementById('editEmail').value;
+            const age = document.getElementById('editAge').value;
+            const course = document.getElementById('editCourse').value;
+            
+            students[index] = { name, email, age, course };
+            
+            document.getElementById('editForm').reset();
+            document.getElementById('editForm').style.display = 'none';
+            
+            renderTable();
+        }
+    </script>
+
+</body>
+</html>
